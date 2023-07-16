@@ -1,58 +1,19 @@
-// // server.js
-// const express = require('express');
-// const db = require('./db');
-// const authRoutes = require('./routes/authRoutes');
-// const deanRoutes = require('./routes/deanRoutes');
-// const studentRoutes = require('./routes/studentRoutes');
-
-// const app = express();
-// const PORT = 3000;
-
-// db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-// db.once('open', () => {
-//   console.log('Connected to MongoDB');
-// });
-
-// app.use(express.json());
-
-
-// app.get("/", (req, res) => {
-//   res.send("Hello World")
-// })
-
-// app.use('/api', authRoutes);
-// app.use('/api/dean', deanRoutes);
-// app.use('/api/student', studentRoutes);
-
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-
-
-// =============================================================================================
-// =============================================================================================
-
-
-// Import required dependencies
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
-// Create the Express app
 const app = express();
 app.use(express.json());
 
 // MongoDB setup
-mongoose.connect('mongodb+srv://ayush:ayush@university.qzytzn9.mongodb.net/?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://ayush:<password>@university.qzytzn9.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('Error connecting to MongoDB:', err));
-
 
 // Define the schemas
 const sessionSchema = new mongoose.Schema({
@@ -85,24 +46,20 @@ function generateToken(payload) {
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  // const token = true
 
   if (!token) {
     return res.status(401).send("token not working");
   }
-
   jwt.verify(token, 'secretKey', (err, user) => {
     if (err) {
       return res.status(403).send("problem  one");
     }
-
     req.user = user;
     next();
   });
 }
 
 // API endpoints
-
 // Student Login API
 app.post('/api/students/login', async (req, res) => {
   const { universityId, password } = req.body;
@@ -113,7 +70,6 @@ app.post('/api/students/login', async (req, res) => {
     // console.log(student)
     return res.sendStatus(401);
   }
-
   const token = generateToken({ universityId: student.universityId });
   res.json({ token });
 });
